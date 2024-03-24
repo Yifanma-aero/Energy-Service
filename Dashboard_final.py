@@ -8,8 +8,8 @@ import pickle
 from sklearn import  metrics
 import numpy as np
 
-#%% 导入和预测
-#Load data
+#%% Import and forecast
+# Load data
 df_test = pd.read_csv('South Tower_2019_test.csv')
 df_test['Date'] = pd.to_datetime (df_test['Date']) # create a new column 'data time' of datetime type
 df_test2=df_test.iloc[:,2:7]
@@ -18,19 +18,16 @@ X2=X2[:,0:3]
 
 fig1 = px.line(df_test, x="Date", y=df_test.columns[1:3])# Creates a figure with the raw data
 
-select = pd.DataFrame({'feature': ['Power-1','Temperature','Hour','Work day','Holiday']})
-select['kBest'] = [1.24299385, 0.18877153, 0.54106774, 0.17534085, 0.13314675]
-select['random forest'] = [0.84708821, 0.04769656, 0.08796199, 0.0117631, 0.00549014]
+df_select = pd.DataFrame({'feature': ['Power-1','Temperature','Hour','Work day','Holiday']})
+df_select['kBest'] = [1.24299385, 0.18877153, 0.54106774, 0.17534085, 0.13314675]
+df_select['random forest'] = [0.84708821, 0.04769656, 0.08796199, 0.0117631, 0.00549014]
 
 df_real = df_test.iloc[:,0:2]
 y2=df_real['South Tower (kWh)'].values    # real power data
 
 #Load and run LR model
-
 with open('LR_model.pkl','rb') as file: LR_model2=pickle.load(file)
-
 y2_pred_LR = LR_model2.predict(X2)
-
 #Evaluate errors
 MAE_LR=round(metrics.mean_absolute_error(y2,y2_pred_LR),3)
 MBE_LR=round(np.mean(y2-y2_pred_LR),3)
@@ -42,7 +39,6 @@ NMBE_LR=round(MBE_LR/np.mean(y2),3)
 #Load NN model
 with open('NN_model.pkl','rb') as file: NN_model2=pickle.load(file)
 y2_pred_NN = NN_model2.predict(X2)
-
 #Evaluate errors
 MAE_NN=round(metrics.mean_absolute_error(y2,y2_pred_NN),3)
 MBE_NN=round(np.mean(y2-y2_pred_NN) ,3)
@@ -52,10 +48,7 @@ cvRMSE_NN=round(RMSE_NN/np.mean(y2),3)
 NMBE_NN=round(MBE_NN/np.mean(y2),3)
 
 # Create data frames with predictin results and error metrics 
-# d = {'Methods': ['LinearRegression','Neural Network'], 'MAE': [MAE_LR, MAE_NN],'MBE': [MBE_LR, MBE_NN], 'MSE': [MSE_LR, MSE_NN], 'RMSE': [RMSE_LR, RMSE_NN],'cvMSE': [cvRMSE_LR, cvRMSE_NN],'NMBE': [NMBE_LR, NMBE_NN]}
-# df_metrics = pd.DataFrame(data=d)
 df_metrics = pd.DataFrame({'Error': ['MAE', 'MBE', 'MSE', 'RMSE', 'cvRMSE', 'NMBE']})
-# df_metrics.set_index('Error', inplace=True)
 df_metrics['LinearRegression'] = [MAE_LR, MBE_LR, MSE_LR, RMSE_LR, cvRMSE_LR, NMBE_LR]
 df_metrics['Neural Network'] = [MAE_NN, MBE_NN, MSE_NN, RMSE_NN, cvRMSE_NN, NMBE_NN]
 
@@ -66,15 +59,10 @@ df_results=pd.merge(df_real,df_forecast, on='Date')
 
 fig2 = px.line(df_results,x=df_results.columns[0],y=df_results.columns[1:4])
 
-# df_metrics.set_index('Error', inplace=True)
-#select = pd.DataFrame({'feature': ['Power-1', 'temp_C', 'Hour', 'Work day', 'Holiday']})
 
 #%%
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets,suppress_callback_exceptions=True)
-# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server=app.server
 
 # Sample data for demonstration
 app.layout = html.Div([
@@ -84,17 +72,7 @@ app.layout = html.Div([
         dcc.Tab(label='Feature Selection', value='tab-2'),
         dcc.Tab(label='Forecast', value='tab-3'),
     ]),
-    html.Div(id='tabs-content'),
-
-    # html.Div(id="table-container1"),
-    # html.Div(id="graph-container1"),
-    
-    # html.Div(id="table-container2"),
-    # html.Div(id="graph-container2"),
-    
-    # html.Div(id="table-container3"),
-    # html.Div(id="graph-container3"),
-    
+    html.Div(id='tabs-content'),    
 ])
 
 @app.callback(
@@ -185,15 +163,8 @@ def render_content(tab):
 )
 
 
-#%% 1
-# def update_table1(selected_variable):
-    
-#     return (generate_table1(selected_variable))
-# # @app.callback(
-# #     Output('table-container1', 'children'),
-# #     Input('radio1', 'value')
-# # )
 
+#%% Tab1
 def generate_table1(selected_variable):
     return html.Table([
         html.Thead(
@@ -203,7 +174,7 @@ def generate_table1(selected_variable):
             html.Tr([
                 html.Td(df_test['Date'][i]),
                 html.Td(df_test[selected_variable][i]),
-            ]) for i in range(len(select))
+            ]) for i in range(len(df_test))
         ])
     ])
 
@@ -232,7 +203,7 @@ def update_graph1(selected_variable):
     Output('update_table2', 'children'),
     Input('radio1', 'value')
 )
-#%% 2
+#%% Tab 2
 def update_table2(value):
     
     return (value)
@@ -248,9 +219,9 @@ def generate_table2(selected_variable):
         ),
         html.Tbody([
             html.Tr([
-                html.Td(i+1), html.Td(select['feature'][i]),
-                html.Td(select[selected_variable][i])
-            ]) for i in range(len(select))
+                html.Td(i+1), html.Td(df_select['feature'][i]),
+                html.Td(df_select[selected_variable][i])
+            ]) for i in range(len(df_select))
         ])
     ])
 
@@ -267,7 +238,7 @@ def update_graph2(selected_variable):
         figure={
             'data': [
 
-                {'x': select['feature'], 'y': select[selected_variable], 'type': 'bar', 'name': selected_variable},
+                {'x': df_select['feature'], 'y': df_select[selected_variable], 'type': 'bar', 'name': selected_variable},
             ],
             'layout': {
                 'title': f'Line Chart of {selected_variable}'
@@ -281,7 +252,7 @@ def update_graph2(selected_variable):
     Input('radio2', 'value')
 )
 
-#%% 3
+#%% Tab3
 def update_table3(value):
     
     return (value)
@@ -322,9 +293,6 @@ def update_graph3(selected_variable):
             }
         }
     )
-
-
-
 
 
 
