@@ -7,7 +7,7 @@ import plotly.express as px
 import pickle
 from sklearn import  metrics
 import numpy as np
-
+server=app.server
 #%% Import and forecast
 # Load data
 df_test = pd.read_csv('South Tower_2019_test.csv')
