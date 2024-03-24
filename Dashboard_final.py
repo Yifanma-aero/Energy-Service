@@ -63,6 +63,7 @@ fig2 = px.line(df_results,x=df_results.columns[0],y=df_results.columns[1:4])
 #%%
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets,suppress_callback_exceptions=True)
+server=app.server
 
 # Sample data for demonstration
 app.layout = html.Div([
