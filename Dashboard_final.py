@@ -74,7 +74,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets,suppress_callback_exceptions=True)
 # app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
+server=app.server
 
 # Sample data for demonstration
 app.layout = html.Div([
