@@ -20,11 +20,9 @@ nbconvert==7.16.3
 numpy==1.26.4
 packaging==24.0
 pandas==2.2.1
-pipreqs==0.5.0
 plotly==5.20.0
 ply==3.11
 pyls-spyder==0.4.0
-Pyomo==6.7.1
 pyproj==3.6.1
 PyQt5==5.15.10
 PyQtWebEngine==5.15.6
